@@ -1,5 +1,6 @@
 import json
 from pymongo import MongoClient
+import sys
 
 client = MongoClient("mongodb://localhost:27017/")
 
@@ -14,8 +15,17 @@ collection = db["product_urls"]
 # collection.insert_many(data)
 
 # print("Data inserted successfully")
+all_urls = []
+# collections=collection.find({}, {"_id":0}).skip(int(sys.argv[1])).limit(int(sys.argv[2]))
+for url_dict in collection.find({}, {"_id":0}).skip(int(sys.argv[1])).limit(int(sys.argv[2])):   
+    # all_urls.append(url_dict)
+    print(url_dict)
+# for url in all_urls[int(sys.argv[1]):int(sys.argv[2])]:
+#     print(url)
+ 
+# result = collection.update_many(
+#     {},
+#     {"$set": {"status": 0}}
+# )
 
-
-for url_dict in collection.find({},{"_id":0, "url":1}):
-    url = url_dict.get('url')
-    print(url)
+# print(result.modified_count)

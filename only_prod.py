@@ -1,4 +1,4 @@
-import requests
+from curl_cffi import requests
 from lxml import html
 from rich import  print
 import time
@@ -55,29 +55,37 @@ requests_data = [
 all_urls=[]
 start_time=time.time()
 for item in requests_data:
-    response = requests.get(item["url"],item["params"], cookies=cookies, headers=headers)
+    response = requests.get(url=item["url"], params=item["params"], cookies=cookies, headers=headers, impersonate="chrome")
     html_content=html.fromstring(response.content)
     urls=html_content.xpath("//url/loc/text()")
     print(f"Found {len(urls)} URLs")
     all_urls.extend(urls)
-    
-with gzip.open("urls.json.gz", "wt") as f:
-    json.dump(all_urls, f, indent=4)
 
-print("Total URLs:", len((all_urls)))
+# print(all_urls)
+# with gzip.open("urls.json.gz", "wt") as f:
+#     json.dump(all_urls, f, indent=4)
 
-
-
-# for url in all_urls[1:]:
-#     response=requests.get(url,timeout=20000)
-#     product_id=re.search(r'(\d+)',url).group(1)
-    
-#     with gzip.open(fr"all_urls_response/product_{product_id}.html.gz",'w') as f:
-#         f.write(response.content)
-# end_time=time.time()
-# print(f"\nTotal Time Taken: {end_time - start_time:.2f} seconds")
+# print("Total URLs:", len((all_urls)))
 
 
+def get_response(url,attempt=0):
+    while attempt < 3:
+        response=requests.get(url=url, impersonate="chrome")
+        if response.status_code==200:
+            return response.content
+        else:
+            if attempt<3:
+                print(response.status_code,attempt)
+                time.sleep(attempt*5)
+                attempt+=1
+   
+for url in all_urls[1:]:
+    data=get_response(url=url)
+    product_id=re.search(r'(\d+)',url).group(1)
 
-
+    with gzip.open(fr"all_urls_response1/product_{product_id}.html.gz",'w') as f:
+            f.write(data)            
+            
+end_time=time.time()
+print(f"\nTotal Time Taken: {end_time - start_time:.2f} seconds")
 

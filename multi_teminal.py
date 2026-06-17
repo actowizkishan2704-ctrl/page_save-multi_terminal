@@ -10,10 +10,12 @@ if not file_name in os.listdir():
     print("file not exists.....")
 else:
     
-
+    user_ip=[]
     for ter in range(terminal):
+        start,end=input("enter how much data pass in your teminal:").split("-")
+        user_ip.append((start,end))
+        
 
-        try:
-            subprocess.Popen(["start","cmd","/k",current_path,file_name],shell=True)
-        except Exception as e:
-            print(str(e))
+    for ip in user_ip:
+        subprocess.Popen(["start","cmd","/k",current_path,file_name,ip[0],ip[1]],shell=True)
+       
